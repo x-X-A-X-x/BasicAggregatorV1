@@ -1,0 +1,22 @@
+def read_logs(file_path, keyword=None):
+    try:
+        with open(file_path, 'r') as file:
+            print(f"\nReading logs from: {file_path}")
+            for line_number, line in enumerate(file, start=1):
+                if keyword:
+                    if keyword.lower() in line.lower():
+                        print(f"{line_number}: {line.strip()}")
+                else:
+                    print(f"{line_number}: {line.strip()}")
+    except FileNotFoundError:
+        print(f"Error: File not found - {file_path}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+# Example usage:
+log_file_path = 'system.log'  # Change this to the path of your log file
+filter_keyword = 'error'      # Change or set to None to disable filtering
+
+read_logs(log_file_path, filter_keyword)
+
+ 
