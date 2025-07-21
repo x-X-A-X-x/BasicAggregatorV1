@@ -1,22 +1,26 @@
-def read_logs(file_path, keyword=None):
-    try:
-        with open(file_path, 'r') as file:
-            print(f"\nReading logs from: {file_path}")
-            for line_number, line in enumerate(file, start=1):
-                if keyword:
-                    if keyword.lower() in line.lower():
-                        print(f"{line_number}: {line.strip()}")
-                else:
-                    print(f"{line_number}: {line.strip()}")
-    except FileNotFoundError:
-        print(f"Error: File not found - {file_path}")
-    except Exception as e:
-        print(f"An error occurred: {e}")
+import os
+import re
 
-# Example usage:
-log_file_path = 'system.log'  # Change this to the path of your log file
-filter_keyword = 'error'      # Change or set to None to disable filtering
+ESET_LOG_DIR = r"C:\ProgramData\ESET\ESET Security\Logs"
+OUTPUT_FILE = "eset_logs_extracted.txt"
 
-read_logs(log_file_path, filter_keyword)
+def extract_text_from_dat(dat_file):
+    with open(dat_file, "rb") as f:
+        raw = f.read()
+    # Extract readable ASCII/UTF-8 strings (min length 4)
+    strings = re.findall(rb"[ -~]{4,}", raw)
+    return [s.decode(errors="ignore") for s in strings]
 
- 
+def export_all_logs(log_dir, output_file):
+    with open(output_file, "w", encoding="utf-8") as out:
+        for file in os.listdir(log_dir):
+            if file.endswith(".dat"):
+                file_path = os.path.join(log_dir, file)
+                out.write(f"\n--- {file} ---\n")
+                logs = extract_text_from_dat(file_path)
+                out.write("\n".join(logs))
+                out.write("\n")
+    print(f"[✔] Logs extracted to {output_file}")
+
+if __name__ == "__main__":
+    export_all_logs(ESET_LOG_DIR, OUTPUT_FILE)
